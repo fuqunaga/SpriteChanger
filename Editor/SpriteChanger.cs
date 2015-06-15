@@ -67,12 +67,15 @@ public class SpriteChanger : EditorWindow
             GUILayout.BeginHorizontal();
             if ( GUILayout.Button("Save"))
             {
-                Save();
+                if ( CheckSpriteTable() ) Save();
             }
             if ( GUILayout.Button("Save As") )
             {
-                var targetDir = EditorUtility.SaveFilePanelInProject("", "", "controller", "");
-                if (!string.IsNullOrEmpty(targetDir)) SaveAs(targetDir);
+                if (CheckSpriteTable())
+                {
+                    var targetDir = EditorUtility.SaveFilePanelInProject("", "", "controller", "");
+                    if (!string.IsNullOrEmpty(targetDir)) SaveAs(targetDir);
+                }
             }
             GUILayout.EndHorizontal();
 
@@ -219,5 +222,21 @@ public class SpriteChanger : EditorWindow
             }
         });
 
+    }
+
+
+    bool CheckSpriteTable()
+    {
+        var ret = true;
+
+        var nullTable = spriteTable.ToList().FindAll(pair => pair.Value == null);
+        if ( nullTable.Any() )
+        {
+            var clipNames = string.Join("\n", nullTable.Select(pair => pair.Key.name).ToArray());
+
+            ret = EditorUtility.DisplayDialog("Change to null sprite?", clipNames, "Ok", "Cancel");
+        }
+
+        return ret;
     }
 }
