@@ -4,13 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using AnimatorController = UnityEditorInternal.AnimatorController;
-using State = UnityEditorInternal.State;
+using AnimatorController = UnityEditor.Animations.AnimatorController;
+using State = UnityEditor.Animations.AnimatorState;
 
 
 public class SpriteChanger : EditorWindow
 {
-    static AnimatorController src;
+    static UnityEditor.Animations.AnimatorController src;
     static string spriteDir;
     static Dictionary<Sprite, Sprite> spriteTable = new Dictionary<Sprite, Sprite>();
 
@@ -26,7 +26,7 @@ public class SpriteChanger : EditorWindow
         return "Assets" + fullPath.Replace(Application.dataPath, "").Replace("\\", "/"); 
     }
 
-    IEnumerable<State> GetStates(AnimatorController ac)
+    IEnumerable<UnityEditor.Animations.AnimatorState> GetStates(UnityEditor.Animations.AnimatorController ac)
     {
 		return Enumerable.Range(0, ac.layerCount)
 			.SelectMany(i => {
@@ -36,7 +36,7 @@ public class SpriteChanger : EditorWindow
             });
     }
 
-    IEnumerable<AnimationClip> GetClips(IEnumerable<State> states)
+    IEnumerable<AnimationClip> GetClips(IEnumerable<UnityEditor.Animations.AnimatorState> states)
     {
         return states
                 .Select(state => state.GetMotion() as AnimationClip)
@@ -53,8 +53,8 @@ public class SpriteChanger : EditorWindow
     Vector2 scrollPosition;
     void OnGUI()
     {
-        var oldSrc = src;
-        src = EditorGUILayout.ObjectField("target", src, typeof(AnimatorController), false) as AnimatorController;
+        UnityEditor.Animations.AnimatorController oldSrc = src;
+        src = EditorGUILayout.ObjectField("target", src, typeof(UnityEditor.Animations.AnimatorController), false) as UnityEditor.Animations.AnimatorController;
 
         if (src == null)
         {
@@ -139,7 +139,7 @@ public class SpriteChanger : EditorWindow
         if ( !success ) return;
         AssetDatabase.Refresh();
 
-        var ac = AssetDatabase.LoadAssetAtPath(targetPath, typeof(AnimatorController)) as AnimatorController;
+        UnityEditor.Animations.AnimatorController ac = AssetDatabase.LoadAssetAtPath(targetPath, typeof(UnityEditor.Animations.AnimatorController)) as UnityEditor.Animations.AnimatorController;
         GetStates(ac).ToList().ForEach(state => {
             var srcClip = state.GetMotion() as AnimationClip;
             if ( srcClip != null )
@@ -157,7 +157,7 @@ public class SpriteChanger : EditorWindow
         AssetDatabase.SaveAssets();
     }
 
-    void UpdateClips(AnimatorController ac)
+    void UpdateClips(UnityEditor.Animations.AnimatorController ac)
     {
         GetStates(ac).ToList().ForEach(state =>
         {
