@@ -28,18 +28,13 @@ public class SpriteChanger : EditorWindow
 
     IEnumerable<UnityEditor.Animations.AnimatorState> GetStates(UnityEditor.Animations.AnimatorController ac)
     {
-		return Enumerable.Range(0, ac.layerCount)
-			.SelectMany(i => {
-                var st = ac.GetLayer(i).stateMachine;
-                return Enumerable.Range(0, st.stateCount)
-                    .Select(st_i => st.GetState(st_i));
-            });
+        return ac.layers.SelectMany(l => l.stateMachine.states.Select(s => s.state));
     }
 
     IEnumerable<AnimationClip> GetClips(IEnumerable<UnityEditor.Animations.AnimatorState> states)
     {
         return states
-                .Select(state => state.GetMotion() as AnimationClip)
+                .Select(state => state.motion as AnimationClip)
                 .Where(clips => clips != null);
     }
 
@@ -141,12 +136,12 @@ public class SpriteChanger : EditorWindow
 
         UnityEditor.Animations.AnimatorController ac = AssetDatabase.LoadAssetAtPath(targetPath, typeof(UnityEditor.Animations.AnimatorController)) as UnityEditor.Animations.AnimatorController;
         GetStates(ac).ToList().ForEach(state => {
-            var srcClip = state.GetMotion() as AnimationClip;
+            var srcClip = state.motion as AnimationClip;
             if ( srcClip != null )
             {
                 var dstPath = clipDir + "/" + Path.GetFileName(AssetDatabase.GetAssetPath(srcClip));
                 var dstClip = AssetDatabase.LoadAssetAtPath(dstPath, typeof(AnimationClip)) as AnimationClip;
-                state.SetAnimationClip(dstClip);
+                state.motion = dstClip;
             }
         });
 
@@ -161,7 +156,7 @@ public class SpriteChanger : EditorWindow
     {
         GetStates(ac).ToList().ForEach(state =>
         {
-            var clip = state.GetMotion() as AnimationClip;
+            var clip = state.motion as AnimationClip;
             if ( clip != null )
             {
                 AnimationUtility.GetObjectReferenceCurveBindings(clip).ToList().ForEach(binding =>
@@ -190,7 +185,7 @@ public class SpriteChanger : EditorWindow
         var states = GetStates(src);
 
         var clips = states
-                    .Select(state => state.GetMotion() as AnimationClip)
+                    .Select(state => state.motion as AnimationClip)
                     .Where(ac => ac != null);
 
         var orkf = clips.SelectMany(c => GetORKSprite(c));
