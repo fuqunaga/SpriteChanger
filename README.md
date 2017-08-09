@@ -7,4 +7,4 @@ Replace Sprites And AnimationClips In AnimatorController For Unity.
 Manually or Search Sprite(Choose Folder To Search Same Name Sprite)
 1. Save!
 
-![screenshot](https://raw.githubusercontent.com/fuqunaga/fuqunaga.github.io/master/SpriteChanger/window.png)
+![screenshot](window.png)
